@@ -1,7 +1,60 @@
 import streamlit as st
+import sqlite3
+
+@st.cache_resource
+def get_connection():
+    return sqlite3.connect("transaction.db", check_same_thread=False)
+
+conn = get_connection()
+cursor = conn.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS customers (
+    customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    phone TEXT UNIQUE,
+    age_group TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP)
+
+""")
+
+cursor.execute(""" 
+    CREATE TABLE IF NOT EXISTS orders (
+        order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_id INTEGER,
+        items TEXT,
+        total_amount INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        
+        FOREIGN KEY(customer_id)
+        REFERENCES customers(customer_id)
+        )
+""")
+
+conn.commit()
 
 st.title("Burger App :hamburger:")
 st.markdown("### Best Burgers in Town, One Click Away 🍟😋")
+
+phone = st.text_input("Phone Number ? ")
+
+if phone:
+    if not phone.isdigit() or len(phone) != 10:
+        st.error("Please enter a valid 10 digit phone number")
+    else:
+        cursor.execute(
+            """
+            SELECT customer_id, name from customers WHERE phone=?
+            """,(phone,)
+        )
+
+        customer = cursor.fetchone()
+
+        if customer:
+            st.write(f"Welcome Back! {customer[1]}")
+        else:
+            name = st.text_input("Your Name ?")
+            age = st.selectbox("Age Group",[ "Under 13","13-17","18-25","26-35","36-50","50+"])
 
 st.text("📋 Menu")
 
@@ -71,5 +124,8 @@ for item_name,count in menu_items.items():
 
 
 st.write(f"Total Amount: {amt} ")
+
+
+
 
 st.button("Order Now")
