@@ -20,3 +20,27 @@ def get_association_rules(db_path, min_support=0.1, min_lift=1.0):
     rules = rules.sort_values('lift', ascending=False)
 
     return rules
+    
+def format_rules(rules):
+    formatted = []
+
+    for _, row in rules.iterrows():
+        antecedents = ", ".join(list(row['antecedents']))
+        consequents = ", ".join(list(row['consequents']))
+        confidence = round(row['confidence'] * 100)
+        lift = round(row['lift'], 2)
+
+        formatted.append(f"({antecedents}) → ({consequents}) — {confidence}% confidence, {lift} lift")
+
+    return formatted
+
+def get_recent_orders(db_path, limit=5):
+    conn = sqlite3.connect(db_path)
+    df = pd.read_sql_query(
+        "SELECT * FROM orders ORDER BY timestamp DESC LIMIT ?",
+        conn,
+        params=(limit,)
+    )
+    conn.close()
+
+    return df
