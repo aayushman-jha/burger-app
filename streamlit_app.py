@@ -38,7 +38,31 @@ st.markdown("### Best Burgers in Town, One Click Away 🍟😋")
 
 phone = st.text_input("Phone Number ? ")
 
-if phone:
+if phone == '999':
+    admin_password = st.text_input("Admin Password", type="password")
+
+    if admin_password:
+        if admin_password == "admin":
+            st.success("Admin Access Granted")
+
+            from admin_tools import get_association_rules, format_rules,get_recent_orders
+
+            n = st.number_input(" Load Recent Orders",1,10)
+            st.write(get_recent_orders("transaction.db",n))
+
+            rules = get_association_rules("transaction.db")
+            formatted = format_rules(rules.head(5))
+
+            st.write("### Association Rules")
+            for line in formatted:
+                st.write(line)
+
+            st.stop()
+        else:
+            st.error("Incorrect password")
+            st.stop()
+
+elif phone:
     if not phone.isdigit() or len(phone) != 10:
         st.error("Please enter a valid 10 digit phone number")
     else:
