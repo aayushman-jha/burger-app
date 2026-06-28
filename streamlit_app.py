@@ -152,4 +152,57 @@ st.write(f"Total Amount: {amt} ")
 
 
 
-st.button("Order Now")
+if st.button("Place Order"):
+
+    if not phone:
+        st.warning("Please Login with Phone No First")
+
+    elif len(items)==0:
+        st.warning("Please select something first")
+
+    elif not customer and not name:
+        st.warning("Please enter you name first")
+
+    else:
+        
+        #check customer
+        cursor.execute(
+            """
+            SELECT customer_id, name from customers WHERE phone=?
+            """,(phone,)
+        )
+
+        customer = cursor.fetchone()
+
+        if customer:
+            #existing customer
+            customer_id = customer[0]
+            st.success(f"Always happy to serve you {customer[1]}!")
+        else:
+            #new customer
+            cursor.execute(
+                """
+                INSERT INTO customers(name, phone, age_group)
+                VALUES(?,?,?)
+                """,(name,phone,age)
+            )
+            conn.commit()
+
+            customer_id = cursor.lastrowid
+            st.success(f"Will be ready with your order {name}!")
+
+        #Create Order
+
+        cursor.execute(
+        """
+        INSERT INTO orders (customer_id,items,total_amount) VALUES (?,?,?)
+
+        """ , (customer_id,",".join(items),amt)
+        )
+        conn.commit()
+
+        order_id = cursor.lastrowid
+
+        st.success(f"Thanks for Ordering! Your Order No: {order_id} ")
+
+
