@@ -33,6 +33,14 @@ cursor.execute("""
 
 conn.commit()
 
+# Seed initial demo data on first run (empty database)
+cursor.execute("SELECT COUNT(*) FROM orders")
+order_count = cursor.fetchone()[0]
+
+if order_count == 0:
+    from seed_data import seed_initial_data
+    seed_initial_data("transaction.db")
+
 st.title("Burger App :hamburger:")
 st.markdown("### Best Burgers in Town, One Click Away 🍟😋")
 
