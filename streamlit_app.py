@@ -46,29 +46,34 @@ st.markdown("### Best Burgers in Town, One Click Away 🍟😋")
 
 phone = st.text_input("Phone Number ? ")
 
+def render_admin_panel():
+    from admin_tools import get_association_rules, format_rules, get_recent_orders
+
+    n = st.number_input("Load Recent Orders",1,10)
+    st.write(get_recent_orders("transaction.db",n))
+
+    rules = get_association_rules("transaction.db")
+    formatted = format_rules(rules.head(5))
+
+    st.write("### Association Rules")
+    for line in formatted:
+        st.write(line)
+
 if phone == '999':
+    # Secret quick-access shortcut to the admin panel (bypasses scrolling to the bottom).
+    # Mirrors the password-gated admin panel at bottom of app
+
     admin_password = st.text_input("Admin Password", type="password")
 
     if admin_password:
         if admin_password == "admin":
             st.success("Admin Access Granted")
+            render_admin_panel()
 
-            from admin_tools import get_association_rules, format_rules,get_recent_orders
-
-            n = st.number_input(" Load Recent Orders",1,10)
-            st.write(get_recent_orders("transaction.db",n))
-
-            rules = get_association_rules("transaction.db")
-            formatted = format_rules(rules.head(5))
-
-            st.write("### Association Rules")
-            for line in formatted:
-                st.write(line)
-
-            st.stop()
         else:
             st.error("Incorrect password")
-            st.stop()
+            
+    st.stop()
 
 elif phone:
     if not phone.isdigit() or len(phone) != 10:
@@ -165,10 +170,13 @@ if st.button("Place Order"):
     if not phone:
         st.warning("Please Login with Phone No First")
 
+    elif not phone.isdigit() or len(phone) != 10:
+        st.error("Please enter a valid 10 digit phone number")
+
     elif len(items)==0:
         st.warning("Please select something first")
 
-    elif not customer and not name:
+    elif not customer and not name.strip():
         st.warning("Please enter you name first")
 
     else:
@@ -192,7 +200,7 @@ if st.button("Place Order"):
                 """
                 INSERT INTO customers(name, phone, age_group)
                 VALUES(?,?,?)
-                """,(name,phone,age)
+                """,(name.strip(),phone,age)
             )
             conn.commit()
 
@@ -212,5 +220,19 @@ if st.button("Place Order"):
         order_id = cursor.lastrowid
 
         st.success(f"Thanks for Ordering! Your Order No: {order_id} ")
+
+st.divider()
+st.divider()
+st.subheader("Admin Panel")
+admin_password = st.text_input("Admin Password (admin)", type="password")
+
+if admin_password:
+    if admin_password == "admin":
+        st.success("Admin Access Granted")
+        render_admin_panel()
+
+    else:
+        st.error("Incorrect password")
+
 
 
