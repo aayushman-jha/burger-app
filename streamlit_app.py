@@ -239,5 +239,17 @@ if admin_password:
     else:
         st.error("Incorrect password")
 
+#Footer Note
+st.divider()
+st.markdown(
+    """
+    <div style="text-align:center; font-size:0.85rem; color:gray; margin-top:2rem;">
+        Burger App v1.0  | Portfolio Project |  Built by Aayushman Jha<br>
+        <a href="https://github.com/aayushman-jha/burger-app">GitHub</a> •
+        <a href="https://www.linkedin.com/in/aayushman-jha/">LinkedIn</a>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
