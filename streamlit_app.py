@@ -44,20 +44,22 @@ if order_count == 0:
 st.title("Burger App :hamburger:")
 st.markdown("### Best Burgers in Town, One Click Away 🍟😋")
 
-phone = st.text_input("Phone Number ? ")
+phone = st.text_input(" :phone: Phone Number ? ")
 
 def render_admin_panel():
     from admin_tools import get_association_rules, format_rules, get_recent_orders
 
-    n = st.number_input("Load Recent Orders",1,10)
+    #Recent order viewer
+    st.markdown("### 🧾Load Recent Orders")
+    n = st.number_input("(1 :arrow_right: 10) ",1,10)
     st.write(get_recent_orders("transaction.db",n))
 
     rules = get_association_rules("transaction.db")
     formatted = format_rules(rules.head(5))
 
-    st.write("### Association Rules")
+    st.write("### :sparkles: Association Rules")
     for line in formatted:
-        st.write(line)
+        st.write(" :link: ", line)
 
 if phone == '999':
     # Secret quick-access shortcut to the admin panel (bypasses scrolling to the bottom).
@@ -67,7 +69,7 @@ if phone == '999':
 
     if admin_password:
         if admin_password == "admin":
-            st.success("Admin Access Granted")
+            st.success(" :unlock: Admin Access Granted")
             render_admin_panel()
 
         else:
@@ -88,7 +90,7 @@ elif phone:
         customer = cursor.fetchone()
 
         if customer:
-            st.write(f"Welcome Back! {customer[1]}")
+            st.write(f"Welcome Back! :blossom: {customer[1]}")
         else:
             name = st.text_input("Your Name ?")
             age = st.selectbox("Age Group",[ "Under 13","13-17","18-25","26-35","36-50","50+"])
@@ -160,7 +162,7 @@ for item_name,count in menu_items.items():
         amt = amt + prices[item_name]*count
 
 
-st.write(f"Total Amount: {amt} ")
+st.write(f" :dollar: Total Amount: {amt} ")
 
 
 
@@ -193,7 +195,7 @@ if st.button("Place Order"):
         if customer:
             #existing customer
             customer_id = customer[0]
-            st.success(f"Always happy to serve you {customer[1]}!")
+            st.success(f"Always happy to serve you, {customer[1]}!")
         else:
             #new customer
             cursor.execute(
@@ -205,15 +207,18 @@ if st.button("Place Order"):
             conn.commit()
 
             customer_id = cursor.lastrowid
-            st.success(f"Will be ready with your order {name}!")
+            st.success(f" :helicopter: Will be ready with your order, {name}!")
 
         #Create Order
 
+        from utils import get_ist_now
+        ist_timestamp = get_ist_now().strftime("%Y-%m-%d %H:%M:%S")
+
         cursor.execute(
         """
-        INSERT INTO orders (customer_id,items,total_amount) VALUES (?,?,?)
+        INSERT INTO orders (customer_id,items,total_amount,timestamp) VALUES (?,?,?,?)
 
-        """ , (customer_id,",".join(items),amt)
+        """ , (customer_id,",".join(items),amt,ist_timestamp)
         )
         conn.commit()
 
@@ -223,12 +228,12 @@ if st.button("Place Order"):
 
 st.divider()
 st.divider()
-st.subheader("Admin Panel")
-admin_password = st.text_input("Admin Password (admin)", type="password")
+st.subheader(" :man_office_worker: Admin Panel")
+admin_password = st.text_input("Admin Password &nbsp; &nbsp; :key: (pwd: admin)", type="password")
 
 if admin_password:
     if admin_password == "admin":
-        st.success("Admin Access Granted")
+        st.success(" :unlock: Admin Access Granted")
         render_admin_panel()
 
     else:

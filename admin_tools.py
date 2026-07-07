@@ -19,6 +19,14 @@ def get_association_rules(db_path, min_support=0.1, min_lift=1.0):
     rules = association_rules(frequent_itemsets, metric="lift", min_threshold=min_lift)
     rules = rules.sort_values('lift', ascending=False)
 
+    # Keep only single-item consequents (actual recommendation shape: X -> Y)
+    rules = rules[rules['consequents'].apply(lambda x: len(x) == 1)]
+
+    # one rule per underlying itemset, keep the highest-lift direction
+    rules['itemset_key'] = rules.apply(lambda r: frozenset(r['antecedents']) | frozenset(r['consequents']), axis=1)
+    rules = rules.sort_values('lift', ascending=False).drop_duplicates(subset='itemset_key')
+    rules = rules.drop(columns='itemset_key')
+
     return rules
     
 def format_rules(rules):

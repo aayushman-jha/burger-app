@@ -72,28 +72,23 @@ def seed_initial_data(db_path):
 
     # Natural item combos with weights (realistic patterns for Apriori to find)
     combos = [
-        # Burger combos (most popular)
-        (["Company Burgers", "Frenchie Fries", "Coke Ka Cola"], 18),
-        (["Company Burgers", "Frenchie Fries"], 12),
-        (["Company Burgers", "Coke Ka Cola"], 10),
-        (["Company Burgers", "Nuggets of Chicken", "Coke Ka Cola"], 8),
-        (["Company Burgers", "Frenchie Fries", "Soft C Softy"], 6),
+    # Burger + Fries + Coke: the shop's signature combo
+    (["Company Burgers", "Frenchie Fries", "Coke Ka Cola"], 32),
+    (["Company Burgers", "Frenchie Fries"], 2),
+    (["Company Burgers"], 4),
+    (["Frenchie Fries"], 3),
 
-        # Veg combos
-        (["Veggie Veg Burger", "Frenchie Fries"], 10),
-        (["Veggie Veg Burger", "Soft C Softy"], 8),
-        (["Veggie Veg Burger", "Frenchie Fries", "Coke Ka Cola"], 6),
+    # Veg Burger + Nuggets + Softy: popular pairing among the veg/snack crowd
+    (["Veggie Veg Burger", "Nuggets of Chicken", "Soft C Softy"], 20),
+    (["Veggie Veg Burger", "Nuggets of Chicken"], 4),
+    (["Veggie Veg Burger"], 3),
+    (["Nuggets of Chicken"], 3),
 
-        # Snack combos
-        (["Nuggets of Chicken", "Coke Ka Cola"], 10),
-        (["Nuggets of Chicken", "Frenchie Fries"], 6),
-        (["Nuggets of Chicken", "Soft C Softy"], 4),
-
-        # Solo orders
-        (["Company Burgers"], 4),
-        (["Frenchie Fries"], 3),
-        (["Soft C Softy"], 3),
-        (["Coke Ka Cola"], 2),
+    # Occasional cross-combo orders for variety
+    (["Frenchie Fries", "Veggie Veg Burger"], 3),
+    (["Company Burgers", "Nuggets of Chicken"], 3),
+    (["Nuggets of Chicken", "Frenchie Fries"], 2),
+    
     ]
 
     # Build weighted order pool
@@ -102,15 +97,15 @@ def seed_initial_data(db_path):
         order_pool.extend([combo] * weight)
 
     # Generate 110 orders
-    base_date = datetime.now() - timedelta(days=30)
+    base_date = datetime.now() - timedelta(days=10)
 
     for i in range(110):
         customer_id = random.choice(customer_ids)
         items = random.choice(order_pool)
         total = sum(prices[item] for item in items)
         timestamp = base_date + timedelta(
-            days=random.randint(0, 30),
-            hours=random.randint(10, 22),
+            days=random.randint(0, 9),
+            hours=random.randint(10, 22), # 10 AM-10 PM: shop's business hours
             minutes=random.randint(0, 59)
         )
 
